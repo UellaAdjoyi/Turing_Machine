@@ -40,7 +40,13 @@ public class WelcomeScreenController {
         // Créer la vue du jeu
         GameView gameView = new GameView();
         
+        // Créer le modèle du joueur (nom par défaut)
+        PlayerModel playerModel = new PlayerModel("Étudiant");
+        
         // Créer le contrôleur du jeu
-        GameController gameController = new GameController(gameModel, gameView);
+        GameController gameController = new GameController(gameModel, gameView,playerModel);
+        
+        gameView.setVisible(true);
+
     }
 }

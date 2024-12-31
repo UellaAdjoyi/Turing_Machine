@@ -4,9 +4,12 @@
  */
 package GameController;
 import GameModel.*;
+
 import GameView.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JOptionPane;
 /**
  *
  * @author Uella Adjoyi
@@ -14,12 +17,27 @@ import java.awt.event.ActionListener;
 public class GameController {
     private GameModel gameModel;
     private GameView gameView;
+    private PlayerModel playerModel;
 
-    public GameController(GameModel model, GameView view) {
+    public GameController(GameModel model, GameView view,PlayerModel player) {
         this.gameModel = model;
         this.gameView = view;
+        this.playerModel = player;
+
         this.gameView.getPlayButton().addActionListener(new PlayButtonListener());
         this.gameView.getQuitButton().addActionListener(new QuitButtonListener());
+        this.gameView.getSubmitButton().addActionListener(new SubmitButtonListener());
+        this.gameView.getHintButton().addActionListener(new HintButtonListener());  // Nouveau listener pour l'indice
+
+    }
+    
+ // Listener pour le bouton "Obtenir un indice"
+    private class HintButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String hint = gameModel.getHint();
+            gameView.getHintLabel().setText("Indice : " + hint);  // Afficher l'indice
+        }
     }
 
     // Mise à jour de l'état du jeu
@@ -33,7 +51,7 @@ public class GameController {
         @Override
         public void actionPerformed(ActionEvent e) {
             updateGameStatus("Tour en cours...");
-            // Logique du jeu à ajouter ici
+            gameView.getQuestionLabel().setText("Question : " + gameModel.getCurrentQuestion());
         }
     }
 
@@ -42,6 +60,30 @@ public class GameController {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.exit(0); // Quitte l'application
+        }
+    }
+    
+    private class SubmitButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String answer = gameView.getAnswerField().getText();
+            if (gameModel.validateAnswer(answer)) {
+                playerModel.incrementScore(10);
+                JOptionPane.showMessageDialog(gameView, "Bonne réponse ! Score : " + playerModel.getScore());
+                gameModel.moveToNextQuestion();
+            } else {
+                JOptionPane.showMessageDialog(gameView, "Mauvaise réponse !");
+            }
+
+            playerModel.decrementInteractions();
+            gameView.getInteractionsLabel().setText("Interactions restantes : " + playerModel.getRemainingInteractions());
+
+            if (playerModel.getRemainingInteractions() <= 0 || !gameModel.hasMoreQuestions()) {
+                JOptionPane.showMessageDialog(gameView, "Partie terminée ! Score final : " + playerModel.getScore());
+                System.exit(0);
+            } else {
+                gameView.getQuestionLabel().setText("Question : " + gameModel.getCurrentQuestion());
+            }
         }
     }
 }

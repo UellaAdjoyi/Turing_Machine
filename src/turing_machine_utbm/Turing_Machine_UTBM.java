@@ -19,13 +19,32 @@ public class Turing_Machine_UTBM {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-       WelcomeScreenModel welcomeModel = new WelcomeScreenModel();
-        
-        // Créer la vue d'accueil
-        WelcomeScreen welcomeView = new WelcomeScreen();
-        
-        // Créer le contrôleur d'accueil
-        WelcomeScreenController welcomeController = new WelcomeScreenController(welcomeModel, welcomeView);
+    	 // Lancer l'application dans le thread de l'interface graphique Swing
+        SwingUtilities.invokeLater(() -> {
+            // Modèle pour l'écran d'accueil
+            WelcomeScreenModel welcomeModel = new WelcomeScreenModel();
+
+            // Vue pour l'écran d'accueil
+            WelcomeScreen welcomeView = new WelcomeScreen();
+
+            // Contrôleur pour l'écran d'accueil
+            WelcomeScreenController welcomeController = new WelcomeScreenController(welcomeModel, welcomeView) {
+                protected void createAndShowGameScreen() {
+                    // Transition vers le jeu principal lorsque l'utilisateur commence
+                    GameModel gameModel = new GameModel();
+                    PlayerModel playerModel = new PlayerModel("Étudiant"); // Initialisation avec un nom
+                    GameView gameView = new GameView();
+                    GameController gameController = new GameController(gameModel, gameView, playerModel);
+
+                    // Afficher la vue du jeu et cacher l'écran d'accueil
+                    welcomeView.setVisible(false);
+                    gameView.setVisible(true);
+                }
+            };
+
+            // Configuration de la fermeture propre de l'application
+            welcomeView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        });
     }
  
 }
